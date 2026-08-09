@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCA Biology Testing Portal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            /* Academic Color Palette */
+            --bg-color: #F8FAFC;
+            --white: #FFFFFF;
+            --light-blue: #EAF4FF;
+            --primary-blue: #2563EB;
+            --primary-hover: #1D4ED8;
+            --cyan-accent: #06B6D4;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --border-light: #E2E8F0;
+            --success: #10B981;
+            --success-bg: #D1FAE5;
+            --danger: #EF4444;
+            --danger-bg: #FEE2E2;
+            --warning: #F59E0B;
+            
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Anti-copy features for main app area */
+        .secure-zone {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { color: var(--text-main); font-weight: 700; }
+        p { color: var(--text-muted); line-height: 1.6; }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            flex-grow: 1;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--cyan-accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn-outline:hover {
+            background: var(--light-blue);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .center-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            background: var(--light-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            color: var(--primary-blue);
+            font-size: 2.5rem;
+            border: 4px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand-subtitle {
+            color: var(--cyan-accent);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: var(--bg-color);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: var(--white);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .timer-badge {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-container {
+            background: var(--border-light);
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue), var(--cyan-accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-item {
+            background: var(--bg-color);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .option-item:hover {
+            border-color: var(--cyan-accent);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .option-prefix {
+            background: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
+            color: var(--text-muted);
+            border: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .option-item.selected .option-prefix {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .question-navigator {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .nav-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--white);
+            border: 2px solid var(--border-light);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .nav-dot.attempted { background: var(--light-blue); border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-dot.current { border-color: var(--cyan-accent); transform: scale(1.1); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: conic-gradient(var(--primary-blue) var(--pct), var(--border-light) 0);
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            background: var(--white);
+            border-radius: 50%;
+        }
+
+        .score-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .score-content h2 { font-size: 2rem; color: var(--primary-blue); margin-bottom: 0; }
+        .score-content span { font-size: 0.875rem; color: var(--text-muted); }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-box {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            border-left: 4px solid var(--border-light);
+        }
+
+        .stat-box.correct { border-left-color: var(--success); }
+        .stat-box.incorrect { border-left-color: var(--danger); }
+
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .stat-label { font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        /* Review Section */
+        .review-section h3 { margin-bottom: 1.5rem; font-size: 1.5rem; border-bottom: 2px solid var(--border-light); padding-bottom: 0.5rem;}
+        .review-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border-left: 6px solid var(--border-light);
+        }
+        .review-card.correct { border-left-color: var(--success); }
+        .review-card.incorrect { border-left-color: var(--danger); }
+        
+        .review-q { font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; }
+        
+        .review-opt {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .review-opt.is-correct { background: var(--success-bg); border-color: var(--success); color: #065F46; font-weight: 500;}
+        .review-opt.is-wrong { background: var(--danger-bg); border-color: var(--danger); color: #991B1B; }
+
+        .explanation-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light-blue);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+            font-size: 0.95rem;
+        }
+        .explanation-box strong { color: var(--primary-blue); }
+
+        /* These are rendered off-screen and used purely for html2pdf generation */
+        .pdf-export-container {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 800px; /* Fixed width for consistent A4 scaling */
+            background: white;
+            color: black;
+            z-index: -100;
+        }
+        
+        .pdf-page {
+            padding: 40px;
+            font-family: 'Inter', Helvetica, sans-serif;
+            background: white;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .pdf-header {
+            text-align: center;
+            border-bottom: 2px solid #2563EB;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pdf-header h1 { color: #2563EB; font-size: 24px; margin-bottom: 5px; }
+        .pdf-header h3 { color: #475569; font-size: 16px; margin-bottom: 15px; font-weight: 500;}
+        
+        .pdf-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .pdf-meta-table td {
+            padding: 8px;
+            border: 1px solid #E2E8F0;
+            font-size: 14px;
+        }
+        .pdf-meta-table td:nth-child(odd) {
+            background-color: #F8FAFC;
+            font-weight: 600;
+            width: 20%;
+        }
+
+        /* Practice PDF Specifics */
+        .pdf-mcq-item { margin-bottom: 30px; page-break-inside: avoid; }
+        .pdf-mcq-q { font-weight: bold; font-size: 14px; margin-bottom: 10px; display: flex; gap: 8px;}
+        .pdf-mcq-opt { font-size: 14px; margin-bottom: 5px; padding-left: 25px; }
+
+        .pdf-answer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .pdf-answer-table th, .pdf-answer-table td {
+            border: 1px solid #CBD5E1;
+            padding: 8px;
+            text-align: left;
+        }
+        .pdf-answer-table th {
+            background-color: #2563EB;
+            color: white;
+            font-weight: 600;
+        }
+        .pdf-answer-table tr:nth-child(even) { background-color: #F8FAFC; }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .center-card { padding: 2rem 1.5rem; }
+            .score-card { flex-direction: column; }
+            .quiz-controls { flex-direction: column; gap: 1rem; }
+            .quiz-controls button { width: 100%; }
+        }
+    </style>
+</head>
+<body class="secure-zone" oncontextmenu="return false;"> <!-- Disable right click globally for security -->
+
+    <div class="container" id="app">
+
+        <!-- SCREEN: LANDING -->
+        <div id="screen-landing" class="screen active">
+            <div class="center-card">
+                <div class="logo-container">
+                    <i class="fa-solid fa-dna"></i>
+                </div>
+                <div class="brand-subtitle">Capital Coaching Academy</div>
+                <h1 style="margin-bottom: 0.5rem; font-size: 2rem;">Biology Testing Portal</h1>
+                <p style="margin-bottom: 2rem;">Under the supervision of Sir Jawad</p>
+                
+                <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; text-align: left; font-size: 0.9rem;">
+                    <strong>Topic:</strong> Human Reproduction & STDs<br>
+                    <strong>Format:</strong> MDCAT Conceptual MCQs<br>
+                    <strong>Total MCQs:</strong> 58
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;" onclick="app.showScreen('form')">
+                    Enter Portal <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: STUDENT FORM -->
+        <div id="screen-form" class="screen">
+            <div class="center-card">
+                <div class="logo-container" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <h2 style="margin-bottom: 1.5rem;">Candidate Information</h2>
+                
+                <div class="form-group">
+                    <label for="studentName">Full Name *</label>
+                    <input type="text" id="studentName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="fatherName">Father's Name *</label>
+                    <input type="text" id="fatherName" placeholder="Enter father's name" required>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="app.startQuiz()">
+                    Start Quiz <i class="fa-solid fa-play"></i>
+                </button>
+                <button class="btn btn-outline" style="width: 100%; margin-top: 0.75rem; border: none;" onclick="app.showScreen('landing')">
+                    Back
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN: QUIZ -->
+        <div id="screen-quiz" class="screen">
+            <div class="quiz-header">
+                <div>
+                    <strong style="color: var(--primary-blue);">CCA Biology</strong>
+                    <span style="color: var(--text-muted); margin-left: 0.5rem; font-size: 0.9rem;" id="quiz-candidate-name"></span>
+                </div>
+                <div class="timer-badge">
+                    <i class="fa-regular fa-clock"></i> <span id="timer-display">00:00</span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="question-card">
+                <div style="color: var(--cyan-accent); font-weight: 600; margin-bottom: 1rem; font-size: 0.9rem; text-transform: uppercase;">
+                    Question <span id="current-q-num">1</span> of <span id="total-q-num">58</span>
+                </div>
+                <div class="question-text" id="question-text">
+                    <!-- Question injected here -->
+                </div>
+
+                <div class="options-grid" id="options-container">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <div class="quiz-controls">
+                <button class="btn btn-outline" id="btn-prev" onclick="app.prevQuestion()">
+                    <i class="fa-solid fa-arrow-left"></i> Previous
+                </button>
+                
+                <button class="btn btn-danger" style="background: var(--danger); color: white;" onclick="app.confirmSubmit()">
+                    Submit Quiz
+                </button>
+
+                <button class="btn btn-primary" id="btn-next" onclick="app.nextQuestion()">
+                    Next <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="question-navigator" id="question-navigator">
+                <!-- Nav dots injected here -->
+            </div>
+        </div>
+
+        <!-- SCREEN: RESULT -->
+        <div id="screen-result" class="screen">
+            <div class="result-header">
+                <h1>Performance Dashboard</h1>
+                <p>Human Reproduction & STDs MDCAT Assessment</p>
+            </div>
+
+            <div class="score-card">
+                <div class="score-circle" id="score-circle" style="--pct: 0%;">
+                    <div class="score-content">
+                        <h2 id="score-percentage">0%</h2>
+                        <span>Score</span>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-box correct">
+                        <div class="stat-value" id="stat-correct">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-box incorrect">
+                        <div class="stat-value" id="stat-incorrect">0</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="stat-skipped">0</div>
+                        <div class="stat-label">Skipped</div>
+                    </div>
+                    <div class="stat-box" style="border-left-color: var(--primary-blue);">
+                        <div class="stat-value" id="stat-time">00:00</div>
+                        <div class="stat-label">Time Taken</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="app.generateStudentPDF()">
+                    <i class="fa-solid fa-download"></i> Download Result Report
+                </button>
+                <button class="btn btn-outline" onclick="app.generatePracticePDF()">
+                    <i class="fa-solid fa-file-pdf"></i> Download Practice PDF
+                </button>
+            </div>
+
+            <div class="review-section">
+                <h3>Detailed MCQ Review</h3>
+                <div id="review-container">
+                    <!-- Review cards injected here -->
+                </div>
+            </div>
+        </div>
+    </div> <!-- End App Container -->
+
+
+    <!-- HIDDEN PDF TEMPLATES (Used only for html2pdf) -->
+    
+    <!-- 1. Student Result PDF Template -->
+    <div id="pdf-student-template" class="pdf-export-container">
+        <div class="pdf-page" id="pdf-student-content">
+            <!-- Content injected dynamically via JS -->
+        </div>
+    </div>
+
+    <!-- 2. Practice Quiz PDF Template -->
+    <div id="pdf-practice-template" class="pdf-export-container">
+        <div class="pdf-page" id="pdf-practice-content">
+            <!-- Content injected dynamically via JS -->
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: MDCAT Biology MCQs (Reproduction & STDs) ---
+        const mcqData = [
+            { id: 1, text: "Which cell is explicitly defined as the female gamete?", options: ["Oogonium", "Secondary oocyte", "Primary oocyte", "Polar body"], correctIndex: 1, explanation: "The secondary oocyte is the female gamete released during ovulation." },
+            { id: 2, text: "What is the primary function of gonads in both sexes?", options: ["Transporting gametes and secreting enzymes", "Producing gametes and secreting sex hormones", "Providing nutrient-rich fluid and protection", "Storing gametes and providing mechanical support"], correctIndex: 1, explanation: "Gonads (testes and ovaries) serve a dual purpose: gametogenesis (producing sperm/eggs) and steroidogenesis (secreting sex hormones)." },
+            { id: 3, text: "Which hormone is secreted mainly by male gonads?", options: ["Progesterone", "Estrogen", "Testosterone", "Inhibin"], correctIndex: 2, explanation: "Testosterone is the primary androgen (male sex hormone) produced by the testes." },
+            { id: 4, text: "Normal sperm production requires a temperature of approximately:", options: ["37°C", "35°C", "39°C", "32°C"], correctIndex: 1, explanation: "Spermatogenesis requires a temperature about 2°C lower than the core body temperature (37°C)." },
+            { id: 5, text: "What connects the testes with the abdominal cavity?", options: ["Epididymis", "Vas deferens", "Spermatic cord", "Ejaculatory duct"], correctIndex: 2, explanation: "The spermatic cord is a bundle of nerves, ducts, and blood vessels connecting the testicles to the abdominal cavity." },
+            { id: 6, text: "Each testis contains how many testicular lobules approximately?", options: ["50–100", "100–150", "200–300", "500–750"], correctIndex: 2, explanation: "Each testis is divided into 200-300 wedge-shaped compartments called testicular lobules." },
+            { id: 7, text: "Between the seminiferous tubules, which cells secrete testosterone?", options: ["Sertoli cells", "Spermatogenic cells", "Interstitial cells of Leydig", "Granulosa cells"], correctIndex: 2, explanation: "Leydig cells are located in the interstitial tissue between the seminiferous tubules and produce testosterone." },
+            { id: 8, text: "What is the correct pathway of sperm flow from the seminiferous tubules?", options: ["Straight tubules -> Rete testis -> Efferent ducts -> Epididymis -> Vas deferens", "Rete testis -> Straight tubules -> Epididymis -> Efferent ducts -> Vas deferens", "Efferent ducts -> Rete testis -> Straight tubules -> Epididymis -> Vas deferens", "Straight tubules -> Efferent ducts -> Rete testis -> Vas deferens -> Epididymis"], correctIndex: 0, explanation: "Sperm moves from seminiferous tubules to straight tubules, rete testis, efferent ducts, epididymis, and finally the vas deferens." },
+            { id: 9, text: "How many vasa efferentia collect sperm from inside the rete testis?", options: ["1–5", "2–4", "10–20", "50–100"], correctIndex: 2, explanation: "Approximately 10 to 20 vasa efferentia (efferent ductules) connect the rete testis to the epididymis." },
+            { id: 10, text: "How long is the uncoiled epididymis?", options: ["4 cm", "20 cm", "6 meters", "45 cm"], correctIndex: 2, explanation: "The epididymis is highly coiled; when uncoiled, it measures approximately 6 meters in length." },
+            { id: 11, text: "Approximately how long does sperm maturation take in the epididymis?", options: ["24 hours", "5 days", "14 days", "64 days"], correctIndex: 2, explanation: "Sperm take about 10-14 days to pass through the epididymis, gaining motility and the ability to fertilize." },
+            { id: 12, text: "Each ejaculatory duct is formed by the union of the vas deferens and the duct from the:", options: ["Prostate gland", "Seminal vesicle", "Bulbourethral gland", "Epididymis"], correctIndex: 1, explanation: "The ejaculatory duct is formed by the union of the vas deferens and the duct of the seminal vesicle." },
+            { id: 13, text: "The male urethra is approximately how long?", options: ["3–5 cm", "10 cm", "20 cm", "45 cm"], correctIndex: 2, explanation: "The male urethra is a tube approximately 20 cm long that runs from the bladder through the penis." },
+            { id: 14, text: "Seminal vesicles provide about what percentage of semen volume?", options: ["25%", "40%", "60%", "90%"], correctIndex: 2, explanation: "Seminal vesicles produce a thick, alkaline fluid that makes up about 60% of the total semen volume." },
+            { id: 15, text: "Which sugar is secreted by seminal vesicles to provide energy for sperm?", options: ["Glucose", "Fructose", "Sucrose", "Maltose"], correctIndex: 1, explanation: "Fructose provides the main energy source for sperm motility." },
+            { id: 16, text: "Prostaglandins in seminal fluid perform which of the following functions?", options: ["Destroy bacteria in the vagina", "Neutralize residual urine acidity", "Stimulate smooth muscle contractions in reproductive tracts", "Form the permanent structural bone matrix"], correctIndex: 2, explanation: "Prostaglandins stimulate reverse peristalsis in the female reproductive tract to help move sperm toward the egg." },
+            { id: 17, text: "The prostate gland contributes about what percentage of semen volume?", options: ["10%", "25%", "60%", "90%"], correctIndex: 1, explanation: "Prostatic secretions make up about 25-30% of the seminal fluid." },
+            { id: 18, text: "Which enzyme in prostatic fluid helps in sperm penetration by degrading barriers?", options: ["Aromatase", "Hyaluronidase", "Fibrinolysin", "Vesiculase"], correctIndex: 1, explanation: "While the acrosome is the primary source of hyaluronidase, it is also present in seminal/prostatic fluid to help degrade barriers." },
+            { id: 19, text: "Bulbourethral glands are also known as:", options: ["Skene's glands", "Cowper's glands", "Bartholin's glands", "Adrenal glands"], correctIndex: 1, explanation: "Bulbourethral glands are also known as Cowper's glands." },
+            { id: 20, text: "What is the primary secretion of bulbourethral glands?", options: ["Fructose-rich sugar", "Alkaline mucus for lubrication", "Clotting enzymes", "Progesterone"], correctIndex: 1, explanation: "Cowper's glands secrete a clear, alkaline mucus that neutralizes acidic urine remaining in the urethra." },
+            { id: 21, text: "Which hormone stimulates Leydig cells to secrete testosterone?", options: ["FSH", "LH", "GnRH", "Oxytocin"], correctIndex: 1, explanation: "Luteinizing Hormone (LH) from the anterior pituitary stimulates Leydig cells to produce testosterone." },
+            { id: 22, text: "Inhibin is released by Sertoli cells to inhibit the secretion of:", options: ["LH", "FSH", "Testosterone", "GnRH"], correctIndex: 1, explanation: "Inhibin provides negative feedback to the anterior pituitary, specifically inhibiting FSH secretion." },
+            { id: 23, text: "The total time for complete sperm formation (spermatogenesis) is about:", options: ["14 days", "28 days", "64 days", "120 days"], correctIndex: 2, explanation: "The entire process of spermatogenesis takes approximately 64-74 days." },
+            { id: 24, text: "The final stage of spermiogenesis where sperm are released into the lumen is called:", options: ["Capacitation", "Spermiation", "Fertilization", "Luteinization"], correctIndex: 1, explanation: "Spermiation is the release of mature spermatids (spermatozoa) from Sertoli cells into the tubule lumen." },
+            { id: 25, text: "A healthy adult male makes about how many sperm per day?", options: ["1–5 million", "10–20 million", "50–100 million", "180–400 million"], correctIndex: 3, explanation: "A healthy adult male continuously produces millions of sperm daily, averaging roughly 300 million." },
+            { id: 26, text: "The acrosome of a sperm is derived from which organelle?", options: ["Mitochondria", "Endoplasmic reticulum", "Golgi apparatus", "Centriole"], correctIndex: 2, explanation: "The Golgi apparatus transforms into the acrosome, a cap containing digestive enzymes for fertilization." },
+            { id: 27, text: "The female external reproductive structures are collectively called the:", options: ["Vagina", "Vulva", "Perineum", "Cervix"], correctIndex: 1, explanation: "The vulva encompasses all external female genitalia." },
+            { id: 28, text: "What are the female gonads called?", options: ["Fallopian tubes", "Uterus", "Ovaries", "Vagina"], correctIndex: 2, explanation: "The ovaries are the female gonads, responsible for producing ova and hormones." },
+            { id: 29, text: "At what stage of development are all primary oocytes formed in females?", options: ["At puberty", "5th to 7th month of fetal life", "At birth", "Monthly after menarche"], correctIndex: 1, explanation: "Oogonia undergo mitosis to become primary oocytes during fetal development, mostly completing by the 7th month." },
+            { id: 30, text: "Primary oocytes remain arrested in which phase of meiosis until puberty?", options: ["Prophase I", "Metaphase I", "Anaphase I", "Metaphase II"], correctIndex: 0, explanation: "Primary oocytes are arrested in Prophase I (diplotene stage) of meiosis until they are stimulated by hormones at puberty." },
+            { id: 31, text: "Which type of follicle is characterized by a single layer of squamous follicle cells?", options: ["Primary follicle", "Secondary follicle", "Primordial follicle", "Graafian follicle"], correctIndex: 2, explanation: "A primordial follicle consists of a primary oocyte surrounded by a single layer of flattened (squamous) follicular cells." },
+            { id: 32, text: "When primordial follicle cells become cuboidal, it is identified as a:", options: ["Primordial follicle", "Primary follicle", "Secondary follicle", "Corpus luteum"], correctIndex: 1, explanation: "When the single layer of cells becomes cuboidal rather than squamous, it marks the transition to a primary follicle." },
+            { id: 33, text: "The non-cellular glycoprotein membrane formed between the primary oocyte and follicular cells is the:", options: ["Corona radiata", "Zona pellucida", "Cumulus oophorus", "Theca interna"], correctIndex: 1, explanation: "The zona pellucida is a thick glycoprotein layer secreted by the oocyte, important for sperm binding." },
+            { id: 34, text: "The fluid-filled cavity that appears inside a secondary follicle is called the:", options: ["Antrum", "Stigma", "Perivitelline space", "Ampulla"], correctIndex: 0, explanation: "The antrum is the fluid-filled space that characterizes secondary and mature (Graafian) follicles." },
+            { id: 35, text: "In response to the LH surge, the primary oocyte resumes and completes Meiosis I just before ovulation, forming a secondary oocyte and a:", options: ["Zygote", "First polar body", "Second polar body", "Spermatid"], correctIndex: 1, explanation: "Completion of Meiosis I results in one large secondary oocyte and one small first polar body." },
+            { id: 36, text: "At the time of ovulation, the secondary oocyte is arrested in which phase of meiosis?", options: ["Prophase I", "Metaphase I", "Metaphase II", "Telophase II"], correctIndex: 2, explanation: "The secondary oocyte is ovulated while arrested in Metaphase II; it only completes meiosis upon fertilization." },
+            { id: 37, text: "Ovulation typically occurs on what day of a standard 28-day menstrual cycle?", options: ["Day 7", "Day 14", "Day 21", "Day 28"], correctIndex: 1, explanation: "In an average 28-day cycle, ovulation usually occurs exactly mid-cycle, around day 14." },
+            { id: 38, text: "What massive hormonal increase triggers ovulation?", options: ["FSH surge", "LH surge", "Progesterone peak", "Estrogen crash"], correctIndex: 1, explanation: "A sharp spike in Luteinizing Hormone (LH) triggers the rupture of the Graafian follicle and release of the oocyte." },
+            { id: 39, text: "After ovulation, the collapsed follicle transforms into the:", options: ["Corpus albicans", "Corpus luteum", "Primary follicle", "Atretic follicle"], correctIndex: 1, explanation: "The ruptured follicle reorganizes under the influence of LH to become the corpus luteum, which secretes progesterone." },
+            { id: 40, text: "If fertilization does not occur, the corpus luteum degenerates into the:", options: ["Corpus albicans", "Corpus hemorrhagicum", "Graafian follicle", "Primordial follicle"], correctIndex: 0, explanation: "Without fertilization, the corpus luteum undergoes apoptosis and becomes the white scar tissue known as corpus albicans." },
+            { id: 41, text: "What hormone prevents the degeneration of the corpus luteum if fertilization occurs?", options: ["FSH", "LH", "Human Chorionic Gonadotropin (hCG)", "Progesterone"], correctIndex: 2, explanation: "hCG, produced by the developing embryo, mimics LH to maintain the corpus luteum during early pregnancy." },
+            { id: 42, text: "During the proliferative phase of the uterine cycle, the endometrium is thickened primarily under the influence of:", options: ["Progesterone", "Estrogen", "Oxytocin", "Prolactin"], correctIndex: 1, explanation: "Estrogen produced by developing ovarian follicles causes the functional layer of the endometrium to proliferate and thicken." },
+            { id: 43, text: "During the secretory phase of the uterine cycle, the endometrium is maintained primarily by:", options: ["Estrogen", "Progesterone", "FSH", "LH"], correctIndex: 1, explanation: "Progesterone from the corpus luteum maintains the thick, secretory endometrium in preparation for implantation." },
+            { id: 44, text: "What is the normal average length of the menstrual cycle?", options: ["14 days", "21 days", "28 days", "35 days"], correctIndex: 2, explanation: "While it varies among individuals, 28 days is universally used as the standard clinical and textbook average." },
+            { id: 45, text: "The first phase of the uterine cycle (Days 1–5) is called the:", options: ["Proliferative phase", "Secretory phase", "Menstrual phase", "Ovulatory phase"], correctIndex: 2, explanation: "The menstrual phase involves the shedding of the functional layer of the endometrium, marking days 1-5 of the cycle." },
+            { id: 46, text: "The total volume of menstrual fluid expelled per menses is typically:", options: ["10–20 mL", "50–150 mL", "200–300 mL", "500 mL"], correctIndex: 1, explanation: "Typical total volume of menstrual discharge (including blood and tissue fluid) is generally between 50 and 150 mL." },
+            { id: 47, text: "The permanent deep layer of the endometrium that regenerates the functional layer is the:", options: ["Stratum functionalis", "Stratum basalis", "Stratum compactum", "Stratum spongiosum"], correctIndex: 1, explanation: "The stratum basalis is the permanent, deep layer that remains after menstruation and regenerates the functionalis layer." },
+            { id: 48, text: "The uterine wall muscle layer that makes up about 90% of the organ is the:", options: ["Perimetrium", "Myometrium", "Endometrium", "Parametrium"], correctIndex: 1, explanation: "The myometrium is the thick, middle layer of smooth muscle in the uterus responsible for contractions." },
+            { id: 49, text: "The primary site of fertilization in the female reproductive tract is the:", options: ["Ovary", "Infundibulum of the uterine tube", "Ampulla of the uterine tube", "Uterine cavity"], correctIndex: 2, explanation: "Fertilization most commonly occurs in the ampulla, the widest and longest portion of the uterine tube." },
+            { id: 50, text: "Fingerlike projections at the end of the uterine tube that capture the oocyte are called:", options: ["Fimbriae", "Villi", "Cilia", "Ampullae"], correctIndex: 0, explanation: "Fimbriae are finger-like ciliated projections that sweep the ovulated oocyte into the infundibulum of the uterine tube." },
+            { id: 51, text: "The normal acidic pH of the vagina (3.8–4.4) is maintained by bacteria producing:", options: ["Acetic acid", "Lactic acid", "Citric acid", "Hydrochloric acid"], correctIndex: 1, explanation: "Commensal bacteria, primarily Lactobacillus, produce lactic acid from glycogen to maintain a low vaginal pH." },
+            { id: 52, text: "Neisseria gonorrhoeae is characterized microscopically as a:", options: ["Gram-positive bacillus", "Gram-negative diplococcus", "Spirochete", "Enveloped retrovirus"], correctIndex: 1, explanation: "N. gonorrhoeae appears as pairs of round bacteria (diplococci) that do not retain the Gram stain (Gram-negative)." },
+            { id: 53, text: "Syphilis is caused by which micro-organism?", options: ["Neisseria gonorrhoeae", "Treponema pallidum", "Human Papillomavirus", "Trichomonas vaginalis"], correctIndex: 1, explanation: "Treponema pallidum is the spirochete bacterium responsible for the sexually transmitted infection syphilis." },
+            { id: 54, text: "The painless ulcer characteristic of primary syphilis is called a:", options: ["Gumma", "Chancre", "Wart", "Vasile"], correctIndex: 1, explanation: "A chancre is the primary lesion of syphilis, usually presenting as a firm, painless, and non-itchy skin ulceration." },
+            { id: 55, text: "HIV belongs to which viral family?", options: ["Orthomyxoviridae", "Retroviridae", "Herpesviridae", "Papillomaviridae"], correctIndex: 1, explanation: "HIV is a retrovirus (family Retroviridae), meaning it has an RNA genome and uses reverse transcriptase." },
+            { id: 56, text: "The viral enzyme that converts viral RNA into double-stranded DNA in HIV is:", options: ["Integrase", "Protease", "Reverse transcriptase", "RNA polymerase"], correctIndex: 2, explanation: "Reverse transcriptase is the enzyme that allows retroviruses to synthesize DNA from an RNA template." },
+            { id: 57, text: "Which surface glycoprotein on HIV binds to the CD4 receptor on host immune cells?", options: ["gp41", "gp120", "p24", "p17"], correctIndex: 1, explanation: "gp120 is the viral envelope glycoprotein that acts as the primary docking mechanism to the CD4 receptor." },
+            { id: 58, text: "AIDS is clinically diagnosed when the CD4+ T-cell count drops below what level per microliter?", options: ["50 cells/µL", "200 cells/µL", "500 cells/µL", "800 cells/µL"], correctIndex: 1, explanation: "An HIV-positive individual is diagnosed with AIDS when their CD4 count falls below 200 cells/µL, indicating severe immunosuppression." }
+        ];
+
+        // --- APPLICATION LOGIC ---
+        const app = {
+            state: {
+                studentName: '',
+                fatherName: '',
+                currentScreen: 'landing',
+                currentIndex: 0,
+                answers: new Array(mcqData.length).fill(null), // null means unattempted
+                timerSeconds: 0,
+                timerInterval: null
+            },
+
+            init() {
+                // Prevent accidental refresh
+                window.onbeforeunload = function() {
+                    if (app.state.currentScreen === 'quiz') return "Quiz is in progress. Are you sure you want to leave?";
+                };
+            },
+
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(`screen-${screenId}`).classList.add('active');
+                this.state.currentScreen = screenId;
+                window.scrollTo(0,0);
+            },
+
+            startQuiz() {
+                const name = document.getElementById('studentName').value.trim();
+                const fname = document.getElementById('fatherName').value.trim();
+
+                if (!name || !fname) {
+                    alert('Please enter both Full Name and Father\'s Name.');
+                    return;
+                }
+
+                this.state.studentName = name;
+                this.state.fatherName = fname;
+                document.getElementById('quiz-candidate-name').innerText = `| ${name}`;
+
+                this.generateNavDots();
+                this.loadQuestion(0);
+                this.startTimer();
+                this.showScreen('quiz');
+            },
+
+            startTimer() {
+                this.state.timerInterval = setInterval(() => {
+                    this.state.timerSeconds++;
+                    const m = Math.floor(this.state.timerSeconds / 60).toString().padStart(2, '0');
+                    const s = (this.state.timerSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('timer-display').innerText = `${m}:${s}`;
+                }, 1000);
+            },
+
+            formatTime(totalSeconds) {
+                const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+                const s = (totalSeconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            },
+
+            generateNavDots() {
+                const container = document.getElementById('question-navigator');
+                container.innerHTML = '';
+                mcqData.forEach((_, i) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'nav-dot';
+                    dot.id = `nav-dot-${i}`;
+                    dot.innerText = i + 1;
+                    dot.onclick = () => this.loadQuestion(i);
+                    container.appendChild(dot);
+                });
+            },
+
+            loadQuestion(index) {
+                this.state.currentIndex = index;
+                const q = mcqData[index];
+
+                document.getElementById('current-q-num').innerText = index + 1;
+                document.getElementById('total-q-num').innerText = mcqData.length;
+                document.getElementById('question-text').innerHTML = q.text;
+
+                // Update Progress bar
+                const progress = ((index + 1) / mcqData.length) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+
+                // Render Options
+                const optsContainer = document.getElementById('options-container');
+                optsContainer.innerHTML = '';
+                const labels = ['A', 'B', 'C', 'D'];
+
+                q.options.forEach((optText, optIndex) => {
+                    const div = document.createElement('div');
+                    div.className = `option-item ${this.state.answers[index] === optIndex ? 'selected' : ''}`;
+                    div.onclick = () => this.selectOption(optIndex);
+                    
+                    div.innerHTML = `
+                        <div class="option-prefix">${labels[optIndex]}</div>
+                        <div>${optText}</div>
+                    `;
+                    optsContainer.appendChild(div);
+                });
+
+                // Update Nav Dots UI
+                document.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.remove('current');
+                    if (i === index) d.classList.add('current');
+                    
+                    if (this.state.answers[i] !== null) d.classList.add('attempted');
+                    else d.classList.remove('attempted');
+                });
+
+                // Control buttons
+                document.getElementById('btn-prev').disabled = index === 0;
+                document.getElementById('btn-next').style.display = index === mcqData.length - 1 ? 'none' : 'inline-flex';
+            },
+
+            selectOption(optIndex) {
+                this.state.answers[this.state.currentIndex] = optIndex;
+                this.loadQuestion(this.state.currentIndex); // Re-render to show selection
+            },
+
+            nextQuestion() {
+                if (this.state.currentIndex < mcqData.length - 1) {
+                    this.loadQuestion(this.state.currentIndex + 1);
+                }
+            },
+
+            prevQuestion() {
+                if (this.state.currentIndex > 0) {
+                    this.loadQuestion(this.state.currentIndex - 1);
+                }
+            },
+
+            confirmSubmit() {
+                const unattempted = this.state.answers.filter(a => a === null).length;
+                let msg = "Are you sure you want to submit the quiz?";
+                if (unattempted > 0) {
+                    msg = `You have ${unattempted} unattempted questions. ` + msg;
+                }
+                
+                this.submitQuiz();
+            },
+
+            submitQuiz() {
+                clearInterval(this.state.timerInterval);
+                window.onbeforeunload = null; // Remove leave warning
+
+                let correct = 0;
+                let incorrect = 0;
+                let skipped = 0;
+
+                this.state.answers.forEach((ans, i) => {
+                    if (ans === null) skipped++;
+                    else if (ans === mcqData[i].correctIndex) correct++;
+                    else incorrect++;
+                });
+
+                const total = mcqData.length;
+                const percentage = Math.round((correct / total) * 100);
+
+                // Update Dashboard UI
+                document.getElementById('stat-correct').innerText = correct;
+                document.getElementById('stat-incorrect').innerText = incorrect;
+                document.getElementById('stat-skipped').innerText = skipped;
+                document.getElementById('stat-time').innerText = this.formatTime(this.state.timerSeconds);
+                
+                document.getElementById('score-percentage').innerText = `${percentage}%`;
+                document.getElementById('score-circle').style.setProperty('--pct', `${percentage}%`);
+                
+                // Color circle based on score
+                let circleColor = 'var(--danger)';
+                if (percentage >= 80) circleColor = 'var(--success)';
+                else if (percentage >= 50) circleColor = 'var(--warning)';
+                document.getElementById('score-circle').style.background = `conic-gradient(${circleColor} var(--pct), var(--border-light) 0)`;
+                document.getElementById('score-percentage').style.color = circleColor;
+
+                this.renderReview();
+                this.showScreen('result');
+            },
+
+            renderReview() {
+                const container = document.getElementById('review-container');
+                container.innerHTML = '';
+                const labels = ['A', 'B', 'C', 'D'];
+
+                mcqData.forEach((q, i) => {
+                    const studentAns = this.state.answers[i];
+                    const isCorrect = studentAns === q.correctIndex;
+                    const isSkipped = studentAns === null;
+                    
+                    let cardClass = isSkipped ? '' : (isCorrect ? 'correct' : 'incorrect');
+
+                    let optionsHTML = '';
+                    q.options.forEach((opt, optIdx) => {
+                        let optClass = '';
+                        let icon = '';
+                        if (optIdx === q.correctIndex) {
+                            optClass = 'is-correct';
+                            icon = '<i class="fa-solid fa-check" style="color:#065F46"></i>';
+                        } else if (optIdx === studentAns && !isCorrect) {
+                            optClass = 'is-wrong';
+                            icon = '<i class="fa-solid fa-xmark" style="color:#991B1B"></i>';
+                        }
+                        
+                        optionsHTML += `
+                            <div class="review-opt ${optClass}">
+                                <strong>${labels[optIdx]}.</strong> ${opt} 
+                                <span style="margin-left:auto">${icon}</span>
+                            </div>
+                        `;
+                    });
+
+                    const cardHTML = `
+                        <div class="review-card ${cardClass}">
+                            <div class="review-q">Q${i+1}: ${q.text}</div>
+                            ${isSkipped ? '<span style="color:var(--warning); font-size:0.85rem; font-weight:bold; margin-bottom:1rem; display:block;">[SKIPPED]</span>' : ''}
+                            <div style="margin-bottom: 1rem;">
+                                ${optionsHTML}
+                            </div>
+                            <div class="explanation-box">
+                                <strong>Concept:</strong> ${q.explanation}
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', cardHTML);
+                });
+            },
+
+            generateStudentPDF() {
+                const btn = document.querySelector('.action-buttons .btn-primary');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+                btn.disabled = true;
+
+                const content = document.getElementById('pdf-student-content');
+                const date = new Date().toLocaleDateString();
+                
+                let reviewHTML = '';
+                mcqData.forEach((q, i) => {
+                    const ans = this.state.answers[i];
+                    const isCorrect = ans === q.correctIndex;
+                    const labels = ['A', 'B', 'C', 'D'];
+                    
+                    let resultText = ans === null ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect');
+                    let resultColor = ans === null ? '#F59E0B' : (isCorrect ? '#10B981' : '#EF4444');
+
+                    reviewHTML += `
+                        <div style="margin-bottom: 20px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px; page-break-inside: avoid;">
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Q${i+1}: ${q.text}</div>
+                            <div style="font-size: 13px; margin-bottom: 4px;">Selected: ${ans !== null ? labels[ans] + '. ' + q.options[ans] : 'None'} <span style="color:${resultColor}; font-weight:bold;">[${resultText}]</span></div>
+                            <div style="font-size: 13px; margin-bottom: 8px; color: #10B981;">Correct: ${labels[q.correctIndex]}. ${q.options[q.correctIndex]}</div>
+                            <div style="background: #EAF4FF; padding: 10px; border-left: 3px solid #2563EB; font-size: 12px; line-height: 1.4;">
+                                <strong>Explanation:</strong> ${q.explanation}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const total = mcqData.length;
+                const correct = document.getElementById('stat-correct').innerText;
+                const pct = document.getElementById('score-percentage').innerText;
+
+                content.innerHTML = `
+                    <div class="pdf-header">
+                        <h1>Capital Coaching Academy (CCA)</h1>
+                        <h3>MDCAT Biology Assessment Report</h3>
+                    </div>
+                    
+                    <table class="pdf-meta-table">
+                        <tr><td>Student Name</td><td>${this.state.studentName}</td><td>Date</td><td>${date}</td></tr>
+                        <tr><td>Father Name</td><td>${this.state.fatherName}</td><td>Topic</td><td>Human Reproduction</td></tr>
+                        <tr><td>Instructor</td><td>Sir Jawad</td><td>Score</td><td>${correct}/${total} (${pct})</td></tr>
+                    </table>
+
+                    <h3 style="margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid black; padding-bottom:5px;">Detailed Question Review</h3>
+                    ${reviewHTML}
+                `;
+
+                const opt = {
+                    margin:       0.4,
+                    filename:     `CCA_Result_${this.state.studentName.replace(/\s+/g, '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                const container = document.getElementById('pdf-student-template');
+                container.style.display = 'block'; // Ensure it's rendered for html2canvas
+                
+                html2pdf().set(opt).from(content).save().then(() => {
+                    container.style.display = 'none';
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            },
+
+            generatePracticePDF() {
+                const btn = document.querySelector('.action-buttons .btn-outline');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+                btn.disabled = true;
+
+                const content = document.getElementById('pdf-practice-content');
+                const date = new Date().toLocaleDateString();
+                const labels = ['A', 'B', 'C', 'D'];
+
+                // 1. Generate MCQ List
+                let mcqHTML = '';
+                mcqData.forEach((q, i) => {
+                    let optsHTML = '';
+                    q.options.forEach((opt, optIdx) => {
+                        optsHTML += `<div class="pdf-mcq-opt">${labels[optIdx]}. ${opt}</div>`;
+                    });
+                    mcqHTML += `
+                        <div class="pdf-mcq-item">
+                            <div class="pdf-mcq-q"><span>${i+1}.</span> <span>${q.text}</span></div>
+                            ${optsHTML}
+                        </div>
+                    `;
+                });
+
+                // 2. Generate Answer Key Table
+                let answerTableRows = '';
+                mcqData.forEach((q, i) => {
+                    answerTableRows += `
+                        <tr>
+                            <td style="text-align:center">${i+1}</td>
+                            <td>${q.text}</td>
+                            <td style="text-align:center; font-weight:bold;">${labels[q.correctIndex]}</td>
+                            <td>${q.options[q.correctIndex]}</td>
+                            <td>${q.explanation}</td>
+                        </tr>
+                    `;
+                });
+
+                content.innerHTML = `
+                    <div class="pdf-header">
+                        <h1>Capital Coaching Academy (CCA)</h1>
+                        <h3>Biology Practice Quiz</h3>
+                    </div>
+                    
+                    <table class="pdf-meta-table">
+                        <tr><td>Subject</td><td>Biology (MDCAT)</td><td>Date</td><td>${date}</td></tr>
+                        <tr><td>Topic</td><td>Human Reproduction</td><td>Total MCQs</td><td>${mcqData.length}</td></tr>
+                        <tr><td>Instructor</td><td colspan="3">Sir Jawad</td></tr>
+                    </table>
+
+                    <div style="margin-top: 30px;">
+                        ${mcqHTML}
+                    </div>
+
+                    <div class="page-break"></div> <!-- Force new page for answers -->
+
+                    <div class="pdf-header" style="margin-top: 20px;">
+                        <h2>Answer Key & Discussion</h2>
+                    </div>
+
+                    <table class="pdf-answer-table">
+                        <thead>
+                            <tr>
+                                <th width="5%">No.</th>
+                                <th width="30%">Question</th>
+                                <th width="8%">Option</th>
+                                <th width="22%">Correct Answer</th>
+                                <th width="35%">Discussion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${answerTableRows}
+                        </tbody>
+                    </table>
+                `;
+
+                const opt = {
+                    margin:       0.4,
+                    filename:     `CCA_Biology_Practice_Reproduction.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+                    pagebreak:    { mode: 'css', before: '.page-break' }
+                };
+
+                const container = document.getElementById('pdf-practice-template');
+                container.style.display = 'block';
+                
+                html2pdf().set(opt).from(content).save().then(() => {
+                    container.style.display = 'none';
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            }
+        };
+
+        // Initialize app on load
+        window.onload = () => app.init();
+
+    </script>
+</body>
+</html>
